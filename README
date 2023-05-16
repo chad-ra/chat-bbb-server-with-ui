@@ -1,6 +1,6 @@
 """
 1 #get into the directory
--  cd /chat-bbb-server-flask
+-  cd /chat-bbb-server-with-ui
 
 2 #create environment 
 -  python3 -m venv .venv

@@ -24,7 +24,8 @@ class Message(BaseModel):
 #Setup OpemAI API Key
 os.environ["OPENAI_API_KEY"] = "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"
 
-
+######################
+# loader = DirectoryLoader('./new_articles/', glob="./*.txt", loader_cls=TextLoader)
 loader = DirectoryLoader('./Test_data_Excel-Words-Plaintext/', glob="./*.txt", loader_cls=TextLoader)
 documents = loader.load()
 
