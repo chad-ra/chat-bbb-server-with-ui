@@ -1,0 +1,27 @@
+"""
+1 #get into the directory
+-  cd /chat-bbb-server-flask
+
+2 #create environment 
+-  python3 -m venv .venv
+
+3 #active environment
+-  . .venv/bin/activate
+#ref for create environment (https://flask.palletsprojects.com/en/2.3.x/installation/)
+
+
+4 #install library
+-  pip install -r requirements.txt
+
+
+5 #start server_api
+-  python3 server_api.py
+
+6 #start front_ui
+- python3 front_ui.py
+
+
+7 #เข้าใช้งาน App ที่ 
+http://127.0.0.1:7860/
+"""
+
