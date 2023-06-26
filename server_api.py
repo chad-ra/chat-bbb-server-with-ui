@@ -10,6 +10,7 @@ from langchain.document_loaders import TextLoader
 from langchain.document_loaders import DirectoryLoader
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks import get_openai_callback
+from langchain.memory import ConversationBufferWindowMemory
 
 import os
 
@@ -22,11 +23,13 @@ class Message(BaseModel):
 
 
 #Setup OpemAI API Key
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["OPENAI_API_KEY"] = "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" #free
+# os.environ["OPENAI_API_KEY"] =  "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" # K Kate
 
-
+# loader = DirectoryLoader('./new_articles/', glob="./*.txt", loader_cls=TextLoader)
 loader = DirectoryLoader('./Test_data_Excel-Words-Plaintext/', glob="./*.txt", loader_cls=TextLoader)
 documents = loader.load()
+
 
 
 
@@ -35,7 +38,10 @@ text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=20
 texts = text_splitter.split_documents(documents)
 
 print(len(texts))
-print(texts[0])
+# print(texts[0])
+for i in texts:
+    print(i)
+    print("_"*100)
 
 
 # Embed and store the texts
@@ -57,7 +63,7 @@ vectordb = None
 vectordb = Chroma(persist_directory=persist_directory, 
                   embedding_function=embedding)
 
-retriever = vectordb.as_retriever()
+retriever = vectordb.as_retriever(search_type="mmr")
 retriever = vectordb.as_retriever(search_kwargs={"k": 2})
 
 
@@ -71,7 +77,9 @@ turbo_llm = ChatOpenAI(
 qa_chain = RetrievalQA.from_chain_type(llm=turbo_llm, 
                                   chain_type="stuff", 
                                   retriever=retriever, 
-                                  return_source_documents=True)
+                                  return_source_documents=True,
+                                  memory=ConversationBufferWindowMemory(k=2)
+                                  )
 
 
 ## Cite sources
@@ -87,21 +95,23 @@ def process_llm_response(llm_response):
     return ans
 
 
-
-
 @app.post("/chat")
 def chat(message: Message):
     query = message.text
 
-
     llm_response = qa_chain(query)
-
 
     print(llm_response)
     ans = process_llm_response(llm_response)
     response = ans
     # print(response)
     return {"message": response}
+
+@app.on_event("shutdown")
+def shutdown_event():
+    vectordb.delete_collection()
+    vectordb.persist()
+
 
 if __name__ == "__main__":
     import uvicorn
